@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBCOT Study Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #fffdf7;
+    --surface2: #f0ebe0;
+    --border: #d8d0c0;
+    --text: #1a1510;
+    --text-muted: #7a6f60;
+    --accent: #2d6a4f;
+    --accent-light: #d8f3dc;
+    --accent2: #b5451b;
+    --accent2-light: #fde8df;
+    --gold: #c9933a;
+    --gold-light: #fef3e0;
+    --week1: #e8f4fd;
+    --week2: #fde8df;
+    --week3: #f0f9e8;
+    --week4: #f9f0fb;
+    --week5: #fef3e0;
+    --week6: #e8f4f0;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--text);
+    color: var(--bg);
+    padding: 28px 40px 24px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .header-left h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .header-left h1 span { color: var(--gold); }
+  .header-left p {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: #b0a898;
+    font-weight: 300;
+  }
+  .header-stats {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .stat-box {
+    text-align: center;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 10px 18px;
+  }
+  .stat-box .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--gold);
+  }
+  .stat-box .label {
+    font-size: 0.7rem;
+    color: #b0a898;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  /* TABS */
+  .tabs {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 14px 20px 12px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .tab .badge {
+    display: inline-block;
+    background: var(--surface2);
+    border-radius: 20px;
+    padding: 1px 7px;
+    font-size: 0.7rem;
+    margin-left: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .tab.active .badge { background: var(--accent-light); color: var(--accent); }
+
+  /* MAIN */
+  .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+  /* OVERVIEW TAB */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  @media(max-width: 700px) { .overview-grid { grid-template-columns: 1fr 1fr; } }
+
+  .week-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: var(--shadow);
+  }
+  .week-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .week-card .week-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .week-card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    margin: 4px 0 8px;
+  }
+  .week-card .progress-bar {
+    background: var(--surface2);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .week-card .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+  .week-card .progress-text {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* TIPS BOX */
+  .tips-box {
+    background: var(--gold-light);
+    border: 1px solid #e8c87a;
+    border-left: 4px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 28px;
+  }
+  .tips-box h4 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    color: var(--gold);
+  }
+  .tips-box ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .tips-box li {
+    font-size: 0.82rem;
+    color: #5a4a20;
+    padding-left: 16px;
+    position: relative;
+  }
+  .tips-box li::before { content: "→"; position: absolute; left: 0; color: var(--gold); }
+
+  /* RESOURCES BOX */
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  @media(max-width: 600px) { .resources-grid { grid-template-columns: 1fr; } }
+  .resource-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .resource-card h5 {
+    font-weight: 600;
+    font-size: 0.82rem;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .resource-card p { font-size: 0.77rem; color: var(--text-muted); line-height: 1.5; }
+
+  /* WEEK TAB CONTENT */
+  .week-section { display: none; }
+  .week-section.active { display: block; }
+
+  .week-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .week-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+  }
+  .week-header p { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+  .week-progress-summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    text-align: right;
+    min-width: 160px;
+  }
+  .week-progress-summary .big {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .week-progress-summary .small { font-size: 0.7rem; color: var(--text-muted); }
+
+  /* DAY BLOCKS */
+  .day-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .day-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .day-header:hover { background: #e8e2d6; }
+  .day-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 7px;
+    white-space: nowrap;
+  }
+  .day-title { font-weight: 600; font-size: 0.9rem; flex: 1; }
+  .day-check-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+  .day-chevron {
+    color: var(--text-muted);
+    transition: transform 0.2s;
+    font-size: 0.8rem;
+  }
+  .day-block.open .day-chevron { transform: rotate(90deg); }
+
+  .day-tasks { display: none; padding: 6px 0; }
+  .day-block.open .day-tasks { display: block; }
+
+  .task-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--surface2);
+    transition: background 0.1s;
+  }
+  .task-row:last-child { border-bottom: none; }
+  .task-row:hover { background: var(--surface2); }
+  .task-row.done { opacity: 0.55; }
+  .task-row.done .task-name { text-decoration: line-through; }
+
+  .task-check {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    background: white;
+  }
+  .task-check:hover { border-color: var(--accent); }
+  .task-row.done .task-check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .task-check svg { display: none; }
+  .task-row.done .task-check svg { display: block; }
+
+  .task-body { flex: 1; }
+  .task-resource {
+    font-size: 0.68rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 1px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 3px;
+  }
+  .task-resource.truelearn { color: #1a5c8c; background: #dbeef9; }
+  .task-resource.nbcot { color: #6b2f8a; background: #f0e6f8; }
+  .task-resource.aota { color: #8a4f2f; background: #f8ece6; }
+  .task-resource.etsy { color: #b05a00; background: #fef3e0; }
+  .task-resource.rest { color: #2d6a4f; background: #d8f3dc; }
+  .task-name { font-size: 0.85rem; font-weight: 500; }
+  .task-note { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
+
+  .confidence-stars {
+    display: flex;
+    gap: 3px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .star {
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: #d8d0c0;
+    transition: color 0.1s;
+    line-height: 1;
+  }
+  .star.lit { color: var(--gold); }
+  .star:hover ~ .star { color: #d8d0c0 !important; }
+
+  /* EXAM MILESTONES */
+  .milestone-tag {
+    display: inline-block;
+    background: var(--accent2-light);
+    color: var(--accent2);
+    border: 1px solid #f0b09a;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 8px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* NOTES textarea */
+  .notes-area {
+    width: 100%;
+    margin-top: 6px;
+    padding: 8px 10px;
+    font-size: 0.78rem;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    resize: vertical;
+    min-height: 52px;
+    outline: none;
+  }
+  .notes-area:focus { border-color: var(--accent); }
+  .notes-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  /* EXAM DAY */
+  .exam-day .day-header { background: #1a1510; color: white; }
+  .exam-day .day-num { background: #333; border-color: #555; color: #ccc; }
+  .exam-day .day-title { color: white; }
+
+  /* CHECKLIST TAB */
+  .checklist-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  @media(max-width: 600px) { .checklist-grid { grid-template-columns: 1fr; } }
+  .checklist-domain {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .checklist-domain h4 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    cursor: pointer;
+  }
+  .check-item input[type=checkbox] {
+    margin-top: 2px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+  .check-item.done { text-decoration: line-through; color: var(--text-muted); }
+
+  /* SAVE NOTICE */
+  .save-notice {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--text);
+    color: var(--bg);
+    font-size: 0.75rem;
+    padding: 8px 14px;
+    border-radius: 6px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .save-notice.show { opacity: 1; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface2); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>NBCOT <span>Study Tracker</span></h1>
+    <p>6-Week First-Pass Plan · TMPOT + TrueLearn + NBCOT Study Pack</p>
+  </div>
+  <div class="header-stats">
+    <div class="stat-box">
+      <div class="num" id="stat-done">0</div>
+      <div class="label">Tasks Done</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-total">0</div>
+      <div class="label">Total Tasks</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-pct">0%</div>
+      <div class="label">Complete</div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="overview">Overview</div>
+  <div class="tab" data-tab="week1">Week 1 <span class="badge" id="b1">0</span></div>
+  <div class="tab" data-tab="week2">Week 2 <span class="badge" id="b2">0</span></div>
+  <div class="tab" data-tab="week3">Week 3 <span class="badge" id="b3">0</span></div>
+  <div class="tab" data-tab="week4">Week 4 <span class="badge" id="b4">0</span></div>
+  <div class="tab" data-tab="week5">Week 5 <span class="badge" id="b5">0</span></div>
+  <div class="tab" data-tab="week6">Week 6 <span class="badge" id="b6">0</span></div>
+  <div class="tab" data-tab="checklist">Topic Checklist</div>
+</div>
+
+<div class="main">
+
+  <!-- OVERVIEW -->
+  <div id="tab-overview" class="week-section active">
+    <div class="overview-grid" id="overview-cards"></div>
+
+    <div class="tips-box">
+      <h4>📌 TMPOT's Own Study Tips (from your Topic Checklist PDF)</h4>
+      <ul>
+        <li>Test yourself often — after every topic, do practice questions. Don't just re-read.</li>
+        <li>Record yourself talking about each topic on your phone. Listen back later — it forces recall.</li>
+        <li>4–6 hours/day is plenty if you're truly focused. Split it: 3 hrs morning, 3 hrs afternoon.</li>
+        <li>Take one full day off each week. Burnout kills retention.</li>
+        <li>When fatigued: move, nap, eat — don't push through. Tired studying = limited recall.</li>
+        <li>You don't need to know every detail. Know a little about every topic; understand concepts and interventions.</li>
+        <li>Always focus on: client factors → impact on OT performance → interventions.</li>
+        <li>Use the "Navigating Questions" PDF before any practice test to calibrate your thinking.</li>
+      </ul>
+    </div>
+
+    <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:12px;">Your Resources & How to Use Them</h3>
+    <div class="resources-grid">
+      <div class="resource-card">
+        <h5>📘 TMPOT Main Guide (294 pages)</h5>
+        <p>Your primary content bible. Covers every NBCOT domain across adult and pediatric populations. Don't read it front-to-back — use it reactively when TrueLearn exposes a gap.</p>
+      </div>
+      <div class="resource-card">
+        <h5>📂 TMPOT Topic PDFs (43 files)</h5>
+        <p>Deep-dive supplements for specific conditions. Pull the matching PDF each study day — they pair perfectly with TrueLearn question blocks.</p>
+      </div>
+      <div class="resource-card">
+        <h5>✅ TMPOT Topic Checklist</h5>
+        <p>A self-audit of every testable subtopic. Save this for Week 6. Work through it and flag anything that feels shaky — those become your final review targets.</p>
+      </div>
+      <div class="resource-card">
+        <h5>🧠 TrueLearn</h5>
+        <p>Your #1 driver. Do questions every single day. Check the domain analytics weekly. NEVER skip reading rationales — the rationale is the real lesson.</p>
+      </div>
+      <div class="resource-card">
+        <h5>🏥 NBCOT Study Pack</h5>
+        <p>Use primarily for clinical simulation practice. Familiarizes you with NBCOT's exact question style, which differs slightly from TrueLearn. Don't over-rely on it for content.</p>
+      </div>
+      <div class="resource-card">
+        <h5>📋 AOTA + Etsy Guides</h5>
+        <p>AOTA: look up OTPF-4 language and ethics when needed. Etsy guides: great for mnemonics and visual summaries — use to supplement, not replace, TMPOT content.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK SECTIONS (generated by JS) -->
+  <div id="tab-week1" class="week-section"></div>
+  <div id="tab-week2" class="week-section"></div>
+  <div id="tab-week3" class="week-section"></div>
+  <div id="tab-week4" class="week-section"></div>
+  <div id="tab-week5" class="week-section"></div>
+  <div id="tab-week6" class="week-section"></div>
+
+  <!-- CHECKLIST TAB -->
+  <div id="tab-checklist" class="week-section">
+    <div style="margin-bottom:20px;">
+      <h2 style="font-family:'DM Serif Display',serif;font-size:1.5rem;">TMPOT Topic Checklist</h2>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-top:6px;">Check off topics as you feel confident. Use this in Week 6 to identify final review targets. Based on your actual TMPOT Topic Checklist PDF.</p>
+    </div>
+    <div class="checklist-grid" id="checklist-container"></div>
+  </div>
+
+</div>
+
+<div class="save-notice" id="save-notice">✓ Saved</div>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────────────
+const WEEKS = [
+  {
+    id: 1,
+    title: "Foundations & Baseline",
+    subtitle: "Establish your baseline, then master the conceptual pillars the entire exam is built on.",
+    color: "#e8f4fd",
+    days: [
+      {
+        day: "Day 1", label: "Diagnostic Exam + Orientation",
+        tasks: [
+          { resource: "TrueLearn", type: "truelearn", name: "Take 75Q cold diagnostic exam — TIMED, no studying first", note: "This is your most important data point. Don't skip it or cheat by studying first. Your weakest domains = your roadmap." },
+          { resource: "NBCOT Study Pack", type: "nbcot", name: "Read your diagnostic score breakdown by domain", note: "Screenshot or note which domains scored below 60%. These get extra time in Weeks 4-6." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Navigating Questions + Questions to Ask Yourself' PDF", note: "Only 1 page but high impact. Internalize this framework for clinical reasoning before touching any content." },
+        ]
+      },
+      {
+        day: "Day 2", label: "OT Process & Ethics",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'The OT Process' PDF (3 pages)", note: "Evaluation → Intervention → Outcomes. Know the sequence cold." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Ethics' PDF", note: "Pay attention to: nonmaleficence, beneficence, autonomy, fidelity. Know how they apply in scenarios." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read Code of Ethics Overview (p. 30 of main guide)", note: "" },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q block — OT Process + Ethics domain", note: "Review EVERY rationale, even ones you got right." },
+        ]
+      },
+      {
+        day: "Day 3", label: "Models & Frames of Reference",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Models and Frames of Reference' PDF", note: "Focus on: MOHO, EHP, PEO, OA, Kawa, Biomechanical, Psychodynamic, CBT, DIA, ACL. Know what each is used FOR." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read Models section pp. 47–60 of main guide", note: "Includes PEOP, OA, ACL, top-down vs bottom-up — often tested." },
+          { resource: "TrueLearn", type: "truelearn", name: "20Q block — Models/Frames of Reference", note: "" },
+          { resource: "Etsy Guides", type: "etsy", name: "Use any FOR comparison chart from your Etsy guides", note: "Visual comparison tables are great for this topic." },
+        ]
+      },
+      {
+        day: "Day 4", label: "Mental Health Concepts",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Mental Health Concepts' PDF", note: "Schizophrenia, mood disorders, anxiety, personality disorders, dementia, substance abuse, groups — all testable." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read Mental Health section pp. 68–84 (main guide)", note: "Clubhouse model, supported employment, criminal justice — easy points if you know them." },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q block — Mental Health domain", note: "" },
+        ]
+      },
+      {
+        day: "Day 5", label: "Intervention Approaches + OT Process Deep Dive",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Intervention Approaches' PDF", note: "Remediation, compensation, prevention, education, advocacy — know the difference and when to choose each." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Grading and Adapting' PDF", note: "Grading up vs grading down, adapting tasks vs environments." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Motor Learning' PDF", note: "Feedback types, practice schedules, stages of learning — frequently tested." },
+          { resource: "TrueLearn", type: "truelearn", name: "20Q block — Intervention domain", note: "" },
+        ]
+      },
+      {
+        day: "Day 6", label: "Week 1 Review",
+        tasks: [
+          { resource: "TrueLearn", type: "truelearn", name: "Review all incorrect answers from the week", note: "Group them by topic. 3+ wrong on same topic = re-read that TMPOT PDF section." },
+          { resource: "Self", type: "rest", name: "Record yourself explaining: MOHO, top-down vs bottom-up, 3 ethics principles", note: "TMPOT recommends this technique. Play it back — if you stumble, that's your gap." },
+          { resource: "TMPOT Checklist", type: "tmpot", name: "Check off Week 1 topics you feel confident about", note: "" },
+        ]
+      },
+      {
+        day: "Day 7", label: "Rest Day",
+        tasks: [
+          { resource: "Rest", type: "rest", name: "Full rest day — no studying", note: "TMPOT explicitly recommends one day off per week. This is not optional — recovery improves retention." },
+        ]
+      },
+    ]
+  },
+  {
+    id: 2,
+    title: "Physical Rehabilitation (Adult)",
+    subtitle: "The heaviest content week. Use the topic PDFs as primary reading and TrueLearn to test daily.",
+    days: [
+      {
+        day: "Day 1", label: "CVA + Brain Lesions",
+        tasks: [
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read CVA section pp. 115–121 (main guide)", note: "Hemi patterns, visual field deficits, neglect, pusher syndrome, aphasia types — all high yield." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Brain Lesions' PDF", note: "Frontal vs parietal vs temporal vs occipital lobe — know the OT implications of each." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Rancho Los Amigos' PDF", note: "Know all 10 levels and OT approach at each." },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — Neurological conditions (CVA, brain)", note: "" },
+        ]
+      },
+      {
+        day: "Day 2", label: "TBI + SCI",
+        tasks: [
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read TBI section pp. 122–127 and SCI pp. 128–134 (main guide)", note: "" },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Neurological Disorders' PDF", note: "Covers CVA, TBI, SCI interventions in one place — great for cross-referencing." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Cognitive Deficits and Interventions' PDF", note: "Attention, memory, executive function, metacognition — directly linked to TBI rehab." },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — TBI/SCI/Cognition", note: "" },
+        ]
+      },
+      {
+        day: "Day 3", label: "Musculoskeletal & Ortho",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Musculoskeletal & Ortho Conditions' PDF", note: "Hip Fx, knee replacement, shoulder, low back pain, amputations — common clinical scenarios." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read MSK section pp. 85–103 (main guide)", note: "Precautions are heavily tested: THA precautions, sternal precautions, etc." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Manual Muscle Testing' PDF", note: "MMT grades 0-5, gravity eliminated positions, muscle functions table." },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — MSK/Ortho", note: "" },
+        ]
+      },
+      {
+        day: "Day 4", label: "UE Injuries + Orthotics",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'UE Injury, Interventions and Orthotic Management' PDF", note: "Largest PDF in the set (835KB). Nerve injuries, fractures, CRPS, orthosis types — this is hand therapy gold." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read UE section pp. 171–214 (main guide)", note: "Radial/median/ulnar nerve injuries and corresponding deformities + orthoses are frequently tested." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Edema Management Techniques' PDF", note: "Coban wrapping, retrograde massage, elevation, compression — know indications for each." },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — Hand/UE/Orthotics", note: "" },
+        ]
+      },
+      {
+        day: "Day 5", label: "Burns + Acute Care + Wound Care",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Burn Rehabilitation' PDF", note: "Burn phases, positioning, splinting, scar management — know the anti-deformity positions." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'OT in Acute Care' PDF", note: "Lab values, precautions, ICU, discharge planning — CRUCIAL. Easy points if studied." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Wound Care' PDF", note: "Wound stages, debridement, dressing types — know OT's role." },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — Acute Care/Burns/Wound", note: "" },
+        ]
+      },
+      {
+        day: "Day 6", label: "Degenerative Conditions + Cardiopulmonary",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Degenerative Conditions' PDF (largest PDF — 804KB)", note: "MS, Parkinson's, ALS, GBS, Alzheimer's, Huntington's — know the OT approach for each." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Cardiopulmonary' PDF", note: "MET levels, Borg scale, cardiac precautions, pulmonary conditions. Often on the exam." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read Cardiac Rehab section pp. 25–29, Body Systems pp. 7–10 (main guide)", note: "" },
+          { resource: "TrueLearn", type: "truelearn", name: "20Q — Degenerative/Cardiopulmonary", note: "" },
+        ]
+      },
+      {
+        day: "Day 7", label: "Rest Day",
+        tasks: [
+          { resource: "Rest", type: "rest", name: "Full rest day", note: "You just did the hardest week of content. Rest hard." },
+        ]
+      },
+    ]
+  },
+  {
+    id: 3,
+    title: "Pediatrics",
+    subtitle: "Don't underestimate peds — it's a significant portion of the exam. Milestones and legislation are high yield.",
+    days: [
+      {
+        day: "Day 1", label: "Developmental Milestones",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Children and Adolescents' PDF (largest peds PDF — 332KB)", note: "Reflexes, gross/fine motor milestones, stages of play, grasp development, scissor skills — memorize the ages." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read Developmental Milestones section pp. 224–232 (main guide)", note: "" },
+          { resource: "Etsy Guides", type: "etsy", name: "Use any milestone chart from your Etsy guides for visual review", note: "Tables and color-coded charts are great for milestones." },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — Pediatric development", note: "" },
+        ]
+      },
+      {
+        day: "Day 2", label: "School Setting + Early Intervention",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'School Setting' PDF", note: "IDEA Part B, IEP process, tiered model, handwriting — school-based OT is heavily tested." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read EI section pp. 248–251 (IFSP, IDEA Part C, transition planning)", note: "Know: IDEA Part C (birth-3) vs Part B (3-21). IFSP vs IEP. Timelines." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read Handwriting section pp. 252–253", note: "" },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — School/EI/Legislation", note: "" },
+        ]
+      },
+      {
+        day: "Day 3", label: "ASD + CP + Sensory Integration",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'ASD and CP Interventions' PDF", note: "ASD: EIBI, PECS, social stories, DIR/Floortime. CP types: spastic, athetoid, ataxic — know the OT implications." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read Sensory Integration section pp. 235–236, Motor Learning pp. 239", note: "" },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Abnormal Muscle Tone' PDF", note: "Hypertonia, hypotonia, fluctuating tone — assessment and intervention strategies." },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — Peds conditions (ASD, CP, SI)", note: "" },
+        ]
+      },
+      {
+        day: "Day 4", label: "Feeding + Vision (Peds) + Seating",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Eating and Swallowing (Peds and Adults)' PDF", note: "Phases of swallowing, dysphagia interventions, NICU feeding, positioning — OT's specific role." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Vision' PDF", note: "Visual hierarchy, oculomotor deficits, hemianopsia, neglect vs inattention — eval and intervention." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Wheelchair Features, Seating Systems, and Positioning' PDF", note: "Peds seating is a separate test focus from adult w/c — know both." },
+          { resource: "TrueLearn", type: "truelearn", name: "20Q — Peds feeding/vision/seating", note: "" },
+        ]
+      },
+      {
+        day: "Day 5", label: "Social Participation + NICU + Peds Mental Health",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Social Participation' PDF", note: "Often tested with mental health crossover questions." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read NICU section pp. 261–264, Mental Health Disorders pp. 265–268", note: "ADHD, conduct disorder, eating disorders, bullying — NICU strategies and positioning." },
+          { resource: "TrueLearn", type: "truelearn", name: "20Q — Social participation/NICU/peds MH", note: "" },
+        ]
+      },
+      {
+        day: "Day 6", label: "Practice Exam #2 + Review",
+        tasks: [
+          { resource: "TrueLearn", type: "truelearn", name: "75Q TIMED practice exam — mixed domains", note: "Simulate real conditions: quiet room, no phone, timer running. This is your Week 3 checkpoint.", milestone: "MILESTONE" },
+          { resource: "TrueLearn", type: "truelearn", name: "Review all incorrect answers — group by domain", note: "Compare to your Day 1 diagnostic. Are your Week 1-2 domains improving?" },
+        ]
+      },
+      {
+        day: "Day 7", label: "Rest Day",
+        tasks: [
+          { resource: "Rest", type: "rest", name: "Rest day", note: "" },
+        ]
+      },
+    ]
+  },
+  {
+    id: 4,
+    title: "Specialty Areas",
+    subtitle: "Research and management are consistent point-getters. Don't skip them — they're more straightforward than you think.",
+    days: [
+      {
+        day: "Day 1", label: "Physical Agent Modalities (PAMs)",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Physical Agent Modalities' PDF", note: "Ultrasound, paraffin, hot packs, cold packs, TENS, NMES, fluidotherapy — know therapeutic effects, precautions, and contraindications for each." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read PAMs section pp. 137–141 (main guide)", note: "Includes cryotherapy, thermal modalities, TENS, NMES — role of OTA in PAMs is often tested." },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — PAMs", note: "" },
+        ]
+      },
+      {
+        day: "Day 2", label: "Wheelchair + Seating + AT",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Wheelchair Features, Seating Systems, and Positioning' PDF", note: "Evaluation, cushion types, manual vs power, W/C measurements — know how to select the right chair." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Adaptive Equipment and Assistive Technology' PDF", note: "Universal design, ECUs, AAC, AT for UE/sensory/cognitive impairments — frequently tested." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Community Mobility and Driver Rehabilitation' PDF", note: "" },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — W/C, AT, AE, community mobility", note: "" },
+        ]
+      },
+      {
+        day: "Day 3", label: "Research in OT",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Research in OT' PDF (large — 382KB)", note: "EBP, PICO, levels of evidence, quantitative vs qualitative, RCT, quasi-experimental, reliability, validity, p-value, ANOVA — all tested." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read Research section pp. 142–154 (main guide)", note: "Percentile rank, standard deviation, program design, needs assessment." },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — Research/EBP", note: "People often skip research prep. Don't. It's more straightforward than clinical questions." },
+        ]
+      },
+      {
+        day: "Day 4", label: "Leading & Managing OT + OT vs OTA",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Leading and Managing OT' PDF", note: "Supervision levels, quality improvement, Medicare/Medicaid, documentation, payers, fieldwork — management questions appear in every exam." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'OT vs. OTA vs. Aide' PDF", note: "Supervision ratios, what can be delegated — heavily tested. Know this cold." },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Consultative Roles' PDF", note: "" },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Treatment Settings' PDF", note: "" },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — Management/Supervision/Ethics", note: "" },
+        ]
+      },
+      {
+        day: "Day 5", label: "Vocational + Work Rehab",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Vocational Rehabilitation' PDF", note: "FCE, work conditioning vs hardening, ergonomics, job demand analysis — know the difference between each." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read Work Rehab section pp. 155–159 (main guide)", note: "" },
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Medication Management' PDF", note: "OT's role, psychotropic medications and side effects — don't skip this." },
+          { resource: "TrueLearn", type: "truelearn", name: "20Q — Vocational/work rehab", note: "" },
+        ]
+      },
+      {
+        day: "Day 6", label: "Weak Domain Deep Dive",
+        tasks: [
+          { resource: "TrueLearn", type: "truelearn", name: "Pull your analytics dashboard — identify your 2 lowest domains", note: "" },
+          { resource: "TMPOT PDFs", type: "tmpot", name: "Re-read the TMPOT PDF(s) for your weakest domains", note: "Go slow. Take notes. Record yourself explaining key concepts." },
+          { resource: "TrueLearn", type: "truelearn", name: "30Q focused on your weakest domains only", note: "" },
+        ]
+      },
+      {
+        day: "Day 7", label: "Rest Day",
+        tasks: [
+          { resource: "Rest", type: "rest", name: "Rest day", note: "" },
+        ]
+      },
+    ]
+  },
+  {
+    id: 5,
+    title: "Clinical Simulations + Full Exam",
+    subtitle: "Shift from content review to exam performance. This week is about execution, not new learning.",
+    days: [
+      {
+        day: "Day 1", label: "Clinical Simulations",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'BDQ-Clinical Simulation' PDF", note: "Work through all simulation questions. Clinical sims require different reasoning than multiple choice." },
+          { resource: "NBCOT Study Pack", type: "nbcot", name: "Complete all clinical simulation items in NBCOT Study Pack", note: "The NBCOT exam has 3 clinical simulation items. Practice the format — they're not multiple choice." },
+          { resource: "TrueLearn", type: "truelearn", name: "20Q — any domain, timed", note: "" },
+        ]
+      },
+      {
+        day: "Day 2", label: "Arthritis + Oncology + Acute Specialty",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Read 'Arthritis' PDF", note: "RA vs OA — different eval approaches and joint protection principles." },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read Oncology section pp. 11 (main guide)", note: "" },
+          { resource: "TMPOT Guide", type: "tmpot", name: "Read Safety and Medical Emergencies section pp. 160–163", note: "Safety is tested — code situations, fall prevention, emergency response." },
+          { resource: "TrueLearn", type: "truelearn", name: "25Q — mixed/specialty areas", note: "" },
+        ]
+      },
+      {
+        day: "Day 3", label: "Full 150Q Practice Exam",
+        tasks: [
+          { resource: "TrueLearn", type: "truelearn", name: "150Q FULL TIMED PRACTICE EXAM — simulate real conditions", note: "Set a 4-hour timer. Quiet room. No phone. This is your dress rehearsal. The real exam is 170Q (150 scored + 20 unscored).", milestone: "MILESTONE" },
+        ]
+      },
+      {
+        day: "Day 4", label: "Full Exam Review",
+        tasks: [
+          { resource: "TrueLearn", type: "truelearn", name: "Review every wrong answer from yesterday's exam", note: "Don't rush this. For each wrong answer: Why did you miss it? Was it content knowledge or question interpretation?" },
+          { resource: "TrueLearn", type: "truelearn", name: "Group missed questions by domain — update your weak area list", note: "" },
+          { resource: "TMPOT PDFs", type: "tmpot", name: "Re-read TMPOT PDFs for your top 3 missed domains", note: "" },
+        ]
+      },
+      {
+        day: "Day 5", label: "Question Strategy + Mnemonics",
+        tasks: [
+          { resource: "TMPOT PDF", type: "tmpot", name: "Re-read 'Navigating Questions + Questions to Ask Yourself' PDF", note: "This 1-pager is worth re-reading at the halfway mark. Your clinical reasoning may have shifted." },
+          { resource: "Etsy Guides", type: "etsy", name: "Review mnemonic/summary sheets from Etsy guides for weak areas", note: "Etsy guides shine here — use them for quick high-density review." },
+          { resource: "TrueLearn", type: "truelearn", name: "30Q — your two weakest domains", note: "" },
+        ]
+      },
+      {
+        day: "Day 6", label: "Targeted Weak Area Drilling",
+        tasks: [
+          { resource: "TrueLearn", type: "truelearn", name: "50Q block — weak domains only, timed", note: "" },
+          { resource: "AOTA", type: "aota", name: "Review OTPF-4 occupational areas, client factors, and performance skills", note: "AOTA terminology appears in tricky questions. Know the framework language." },
+          { resource: "Self", type: "rest", name: "Record yourself explaining your 3 hardest topics", note: "" },
+        ]
+      },
+      {
+        day: "Day 7", label: "Rest Day",
+        tasks: [
+          { resource: "Rest", type: "rest", name: "Rest day — mandatory", note: "You've been at it for 5 weeks. Rest is recovery." },
+        ]
+      },
+    ]
+  },
+  {
+    id: 6,
+    title: "Final Sprint & Exam",
+    subtitle: "No new material after Day 4. Wind down, trust your prep, and sleep.",
+    days: [
+      {
+        day: "Day 1", label: "Final Weak Area Deep Dive",
+        tasks: [
+          { resource: "TrueLearn", type: "truelearn", name: "Pull final analytics — identify your single lowest domain", note: "" },
+          { resource: "TMPOT PDFs", type: "tmpot", name: "Read the corresponding TMPOT PDF for your lowest domain one more time", note: "" },
+          { resource: "TrueLearn", type: "truelearn", name: "40Q block — lowest domain only", note: "" },
+        ]
+      },
+      {
+        day: "Day 2", label: "Final Practice Exam",
+        tasks: [
+          { resource: "TrueLearn", type: "truelearn", name: "75Q timed practice exam — full mix of domains", note: "Compare to your Week 3 practice exam. You should see meaningful improvement.", milestone: "MILESTONE" },
+          { resource: "TrueLearn", type: "truelearn", name: "Review wrong answers — note any recurring patterns", note: "" },
+        ]
+      },
+      {
+        day: "Day 3", label: "TMPOT Topic Checklist Audit",
+        tasks: [
+          { resource: "TMPOT Checklist", type: "tmpot", name: "Go through the entire TMPOT Topic Checklist PDF", note: "Mark every sub-topic you feel shaky on. These are your Day 4 targets only." },
+          { resource: "TMPOT PDFs", type: "tmpot", name: "Quick skim of any flagged topic PDFs (30 min max per topic)", note: "" },
+          { resource: "Etsy Guides", type: "etsy", name: "Review any mnemonic sheets for flagged topics", note: "" },
+        ]
+      },
+      {
+        day: "Day 4", label: "Light Review — Last Content Day",
+        tasks: [
+          { resource: "Self", type: "rest", name: "Review your personal notes and recorded audio — no new content", note: "This is your LAST content day. After today: review only, no new learning." },
+          { resource: "TrueLearn", type: "truelearn", name: "20Q — confidence boosters in your strongest domain", note: "End on a high note. This isn't about finding gaps — it's about building confidence." },
+        ]
+      },
+      {
+        day: "Day 5", label: "Final Light Review",
+        tasks: [
+          { resource: "Self", type: "rest", name: "30 minutes MAX — flip through any index cards or summary sheets", note: "Do not start new topics. Do not take a practice exam. Your brain needs to consolidate, not absorb." },
+          { resource: "Self", type: "rest", name: "Prepare your exam-day logistics: ID, directions, what to eat, sleep plan", note: "" },
+        ]
+      },
+      {
+        day: "Day 6", label: "Day Before Exam",
+        tasks: [
+          { resource: "Rest", type: "rest", name: "NO STUDYING TODAY", note: "The night before the exam: light walk, good meal, early bed. Your prep is done. Trust it." },
+          { resource: "Rest", type: "rest", name: "Get 8+ hours of sleep", note: "Sleep is the single most effective 'study' tool for the night before an exam." },
+        ]
+      },
+      {
+        day: "Day 7", label: "🎓 EXAM DAY",
+        tasks: [
+          { resource: "You've got this", type: "rest", name: "NBCOT Exam — you've prepared for this", note: "Eat breakfast. Arrive early. Use the Navigating Questions framework on every hard question. Trust your clinical knowledge — you just finished OT school." },
+        ]
+      },
+    ]
+  }
+];
+
+const CHECKLIST = [
+  { domain: "Pediatrics", items: ["Reflexes & gross motor milestones", "Fine motor & grasp development", "Oculomotor/eye-hand coordination", "Stages of play & cognitive development", "Pre-writing & writing development", "Scissor skill stages", "Stages of toileting & dressing", "Sensory processing", "IDEA Part B / IDEA Part C", "IEP & IFSP process", "Chaining (forward/backward)", "Pediatric conditions (ASD, CP, ADHD)", "Pediatric seating & mobility", "Peds feeding interventions", "School-based OT role", "Early intervention (EI)", "Transition to adulthood", "Visual impairments in peds", "NICU strategies & positioning", "Working with families"] },
+  { domain: "Musculoskeletal & Orthopaedics", items: ["ROM & MMT (all grades)", "PROM / AROM / gravity-eliminated positions", "Grasp & pinch strength testing", "Surgery precautions (THA, sternal, shoulder)", "Modifications & adaptations for MSK", "Amputations & prosthetics", "Rotator cuff injuries & protocols", "Arthritis (RA vs OA)", "Burns evaluation & treatment", "Low back pain interventions", "Fibromyalgia"] },
+  { domain: "Hand & Upper Extremity", items: ["Functional anatomy & optimal positioning", "Edema management (Coban, massage, elevation)", "Lymphedema management", "OTA role in hand therapy", "Shoulder/elbow/wrist/hand diagnoses", "CRPS", "Fracture protocols (distal radius, carpal, etc.)", "Flexor/extensor tendon protocols", "Peripheral nerve injuries (radial, median, ulnar)", "Sensation testing & return", "Contracture management", "Deformities (boutonniere, swan neck, claw)", "Isotonic vs isometric", "Open vs closed chain exercises"] },
+  { domain: "Orthotics", items: ["Static/immobilization orthoses", "Dynamic/mobilization orthoses", "Thumb orthoses", "Wrist orthoses", "Elbow & forearm orthoses", "Shoulder orthoses", "Spasticity management orthoses", "When to use each type", "OTA role in orthotics"] },
+  { domain: "Neurology", items: ["CVA: hemi patterns, neglect, pusher syndrome", "Aphasia types & OT implications", "TBI: Rancho Los Amigos levels", "SCI: levels & functional expectations", "Brain lesion locations & OT impact", "MS: relapsing-remitting, interventions", "Parkinson's: ON/OFF, cueing strategies", "ALS: conservation of energy, AAC", "GBS: acute vs chronic phase", "Alzheimer's & dementia stages", "Huntington's disease", "Spasticity management"] },
+  { domain: "Cognitive/Perceptual", items: ["Orientation, attention types", "Memory types & deficits", "Executive functioning", "Self-awareness & metacognition", "Visuospatial conditions", "Apraxia (ideational vs ideomotor)", "Eval methods (LOTCA, COGNISTAT, etc.)", "Remediation vs adaptive/compensatory approaches"] },
+  { domain: "Vision", items: ["Hierarchy of visual perception", "Visual processing skills", "Visual discrimination", "Cataracts & glaucoma", "Hemianopsia vs neglect vs inattention", "Diplopia & oculomotor deficits", "Visual agnosia", "Acuity & contrast sensitivity", "Remediation vs adaptive interventions"] },
+  { domain: "PAMs", items: ["OTA role in PAMs", "Ultrasound (thermal vs non-thermal)", "Fluidotherapy", "Paraffin", "Hot packs", "Cold packs & ice massage", "Iontophoresis", "TENS", "NMES / FES", "Biofeedback", "Whirlpool/hydrotherapy", "Therapeutic effects for each", "Precautions & contraindications for each"] },
+  { domain: "Wheelchair & Seating", items: ["Wheelchair evaluation process", "Solid base of support", "Postural support principles", "Cushion types & indications", "Manual vs power wheelchairs", "Activity/environment-specific chairs", "Wheelchair measurements", "Mobility training techniques", "W/C accessories", "Transporting in W/C"] },
+  { domain: "Assistive Technology", items: ["Environmental access & universal design", "AT for UE impairments", "AT for fine motor impairments", "AT for sensory impairments", "AT for communication (AAC)", "AT for visual/auditory impairments", "AT for cognitive impairments", "ECUs (environmental control units)", "Direct vs indirect access methods"] },
+  { domain: "Models & Frames of Reference", items: ["MOHO (all components)", "EHP", "PEO", "PEOP", "OA (Occupational Adaptation)", "Kawa", "NFA (Neurofunctional Approach)", "Biomechanical FOR", "Psychodynamic FOR", "CBT", "DIA (Dynamic Interactional)", "Transtheoretical model", "ACL (Allen Cognitive Levels)", "Rehabilitation model", "Sensorimotor FOR", "Motor relearning", "Recovery model", "Top-down vs bottom-up"] },
+  { domain: "Research & EBP", items: ["Evidence based practice (EBP)", "Critically appraising research", "Conducting a literature review", "PICO format", "Qualitative vs quantitative", "Quasi-experimental vs experimental", "Randomized control trials", "Validity (internal/external)", "Reliability (inter/intra-rater, test-retest)", "Levels of evidence", "Sampling methods", "Meta-analysis", "Needs assessment", "Program planning & evaluation", "P-value interpretation", "Standard deviation & percentile rank", "Correlation coefficient", "ANOVA"] },
+  { domain: "Management & Ethics", items: ["OT Code of Ethics & application", "Standards of practice", "OT vs OTA vs aide supervision", "Service competency", "Fieldwork education", "Leadership & management styles", "Reimbursement & payers", "Medicare A/B/C/D & Medicaid", "Documentation requirements", "Quality improvement", "HIPAA & confidentiality", "Ethical conflict resolution"] },
+  { domain: "Occupational Performance", items: ["ADLs with limited ROM", "ADLs with incoordination", "ADLs with hemiplegia", "ADLs with low vision", "ADLs with paraplegia/quadriplegia", "IADLs across conditions", "Energy conservation techniques", "Work simplification", "Sleep & rest occupations"] },
+];
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let state = JSON.parse(localStorage.getItem('nbcot_state') || '{}');
+
+function saveState() {
+  localStorage.setItem('nbcot_state', JSON.stringify(state));
+  const n = document.getElementById('save-notice');
+  n.classList.add('show');
+  clearTimeout(n._t);
+  n._t = setTimeout(() => n.classList.remove('show'), 1500);
+}
+
+// ─── BUILD UI ───────────────────────────────────────────────────────────────
+function buildWeeks() {
+  WEEKS.forEach(week => {
+    const container = document.getElementById(`tab-week${week.id}`);
+
+    // Count tasks for badge
+    let total = 0, done = 0;
+    week.days.forEach(d => d.tasks.forEach(t => {
+      total++;
+      const key = `w${week.id}_${d.day}_${t.name}`.replace(/\s+/g,'_');
+      if (state[key + '_done']) done++;
+    }));
+
+    // Header
+    const pct = total ? Math.round(done/total*100) : 0;
+    container.innerHTML = `
+      <div class="week-header">
+        <div>
+          <h2>Week ${week.id}: ${week.title}</h2>
+          <p>${week.subtitle}</p>
+        </div>
+        <div class="week-progress-summary">
+          <div class="big">${pct}%</div>
+          <div class="small">${done}/${total} tasks done</div>
+        </div>
+      </div>
+    `;
+
+    week.days.forEach((day, di) => {
+      const tasksDone = day.tasks.filter(t => {
+        const key = `w${week.id}_${day.day}_${t.name}`.replace(/\s+/g,'_');
+        return state[key + '_done'];
+      }).length;
+
+      const isExamDay = day.label.includes('EXAM DAY');
+      const blockEl = document.createElement('div');
+      blockEl.className = `day-block${isExamDay ? ' exam-day' : ''}`;
+      blockEl.dataset.week = week.id;
+      blockEl.dataset.day = di;
+
+      let tasksHTML = '';
+      day.tasks.forEach((task, ti) => {
+        const key = `w${week.id}_${day.day}_${task.name}`.replace(/\s+/g,'_');
+        const isDone = !!state[key + '_done'];
+        const stars = state[key + '_stars'] || 0;
+        const note = state[key + '_note'] || '';
+
+        const resClass = task.type || 'tmpot';
+        const milestoneTag = task.milestone ? `<span class="milestone-tag">⚑ ${task.milestone}</span>` : '';
+
+        const starsHTML = [1,2,3,4,5].map(n =>
+          `<span class="star${stars >= n ? ' lit' : ''}" data-key="${key}" data-val="${n}">★</span>`
+        ).join('');
+
+        tasksHTML += `
+          <div class="task-row${isDone ? ' done' : ''}" id="tr_${key}">
+            <div class="task-check" onclick="toggleTask('${key}')">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                <path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="task-body">
+              <div><span class="task-resource ${resClass}">${task.resource}</span>${milestoneTag}</div>
+              <div class="task-name">${task.name}</div>
+              ${task.note ? `<div class="task-note">${task.note}</div>` : ''}
+              <div class="notes-label">My Notes</div>
+              <textarea class="notes-area" placeholder="Add your own notes here..." oninput="saveNote('${key}', this.value)">${note}</textarea>
+            </div>
+            <div>
+              <div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:3px;text-align:center">Confidence</div>
+              <div class="confidence-stars">${starsHTML}</div>
+            </div>
+          </div>
+        `;
+      });
+
+      blockEl.innerHTML = `
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-num">${day.day}</span>
+          <span class="day-title">${day.label}</span>
+          <span class="day-check-count">${tasksDone}/${day.tasks.length}</span>
+          <span class="day-chevron">▶</span>
+        </div>
+        <div class="day-tasks">${tasksHTML}</div>
+      `;
+
+      container.appendChild(blockEl);
+    });
+  });
+}
+
+function buildChecklist() {
+  const container = document.getElementById('checklist-container');
+  CHECKLIST.forEach(domain => {
+    const el = document.createElement('div');
+    el.className = 'checklist-domain';
+    const itemsHTML = domain.items.map(item => {
+      const key = `cl_${domain.domain}_${item}`.replace(/\s+/g,'_');
+      const checked = !!state[key];
+      return `<label class="check-item${checked ? ' done' : ''}">
+        <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleCheck('${key}', this)">
+        ${item}
+      </label>`;
+    }).join('');
+    el.innerHTML = `<h4>${domain.domain}</h4>${itemsHTML}`;
+    container.appendChild(el);
+  });
+}
+
+function buildOverviewCards() {
+  const container = document.getElementById('overview-cards');
+  WEEKS.forEach(week => {
+    let total = 0, done = 0;
+    week.days.forEach(d => d.tasks.forEach(t => {
+      total++;
+      const key = `w${week.id}_${d.day}_${t.name}`.replace(/\s+/g,'_');
+      if (state[key + '_done']) done++;
+    }));
+    const pct = total ? Math.round(done/total*100) : 0;
+
+    const card = document.createElement('div');
+    card.className = 'week-card';
+    card.onclick = () => switchTab('week'+week.id);
+    card.innerHTML = `
+      <div class="week-label">Week ${week.id}</div>
+      <h3>${week.title}</h3>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-text">${done}/${total} tasks · ${pct}%</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function updateStats() {
+  let total = 0, done = 0;
+  WEEKS.forEach(week => {
+    week.days.forEach(d => d.tasks.forEach(t => {
+      total++;
+      const key = `w${week.id}_${d.day}_${t.name}`.replace(/\s+/g,'_');
+      if (state[key + '_done']) done++;
+    }));
+  });
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-pct').textContent = Math.round(done/total*100) + '%';
+
+  WEEKS.forEach(week => {
+    let wTotal = 0, wDone = 0;
+    week.days.forEach(d => d.tasks.forEach(t => {
+      wTotal++;
+      const key = `w${week.id}_${d.day}_${t.name}`.replace(/\s+/g,'_');
+      if (state[key + '_done']) wDone++;
+    }));
+    const badge = document.getElementById(`b${week.id}`);
+    if (badge) badge.textContent = `${wDone}/${wTotal}`;
+  });
+}
+
+// ─── INTERACTIONS ───────────────────────────────────────────────────────────
+function toggleDay(header) {
+  header.parentElement.classList.toggle('open');
+}
+
+function toggleTask(key) {
+  state[key + '_done'] = !state[key + '_done'];
+  const row = document.getElementById('tr_' + key);
+  if (row) row.classList.toggle('done', state[key + '_done']);
+  saveState();
+  updateStats();
+  updateWeekCount();
+}
+
+function saveNote(key, val) {
+  state[key + '_note'] = val;
+  saveState();
+}
+
+function updateWeekCount() {
+  WEEKS.forEach(week => {
+    const container = document.getElementById(`tab-week${week.id}`);
+    if (!container) return;
+    let total = 0, done = 0;
+    week.days.forEach(d => d.tasks.forEach(t => {
+      total++;
+      const key = `w${week.id}_${d.day}_${t.name}`.replace(/\s+/g,'_');
+      if (state[key + '_done']) done++;
+    }));
+    const summary = container.querySelector('.week-progress-summary');
+    if (summary) {
+      summary.querySelector('.big').textContent = `${total ? Math.round(done/total*100) : 0}%`;
+      summary.querySelector('.small').textContent = `${done}/${total} tasks done`;
+    }
+    // day check counts
+    week.days.forEach((day, di) => {
+      const tasksDone = day.tasks.filter(t => {
+        const key = `w${week.id}_${day.day}_${t.name}`.replace(/\s+/g,'_');
+        return state[key + '_done'];
+      }).length;
+      const blocks = container.querySelectorAll('.day-block');
+      if (blocks[di]) {
+        const cnt = blocks[di].querySelector('.day-check-count');
+        if (cnt) cnt.textContent = `${tasksDone}/${day.tasks.length}`;
+      }
+    });
+  });
+}
+
+// Star ratings
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('star')) {
+    const key = e.target.dataset.key;
+    const val = parseInt(e.target.dataset.val);
+    state[key + '_stars'] = val;
+    // update UI
+    const parent = e.target.parentElement;
+    parent.querySelectorAll('.star').forEach((s, i) => {
+      s.classList.toggle('lit', i < val);
+    });
+    saveState();
+  }
+});
+
+function toggleCheck(key, el) {
+  state[key] = el.checked;
+  el.parentElement.classList.toggle('done', el.checked);
+  saveState();
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.week-section').forEach(s => s.classList.remove('active'));
+  document.querySelector(`[data-tab="${tabId}"]`)?.classList.add('active');
+  document.getElementById(`tab-${tabId}`)?.classList.add('active');
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// ─── INIT ───────────────────────────────────────────────────────────────────
+buildWeeks();
+buildChecklist();
+buildOverviewCards();
+updateStats();
+</script>
+</body>
+</html>
